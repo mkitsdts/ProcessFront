@@ -1,4 +1,4 @@
-<!-- filepath: /c:/Users/mkitsdts/OneDrive/mkitsdts/code/Program/Web/ExchangeProcess/front/src/components/Balance.vue -->
+<!-- filepath: /c:/Users/mkitsdts/OneDrive/mkitsdts/code/Program/Web/ExchangeProcess/front/src/components/Wallet.vue -->
 <template>
   <div class="balance-container">
     <div class="balance-box">
@@ -120,7 +120,7 @@ export default {
       this.balanceType = 'crypto';
     },
     goBack() {
-      this.$router.push('/account');
+      this.$router.push('/home');
     }
   }
 };

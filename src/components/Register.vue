@@ -5,8 +5,14 @@
       <h2>注册</h2>
       <input type="text" v-model="username" placeholder="账号">
       <input type="password" v-model="password" placeholder="密码">
-      <button @click="navigateToLogin">返回</button>
+      <div class="verification-code-container">
+        <input v-model="verificationCode" placeholder="验证码" />
+        <button @click="getVerificationCode" :disabled="isButtonDisabled">
+          {{ isButtonDisabled ? countdown + 's' : '获取验证码' }}
+        </button>
+      </div>
       <button @click="register">注册</button>
+      <button @click="navigateToLogin">返回</button>
     </div>
   </div>
 </template>
@@ -16,33 +22,59 @@ export default {
   data() {
     return {
       username: '',
-      password: ''
+      password: '',
+      verificationCode: '',
+      countdown: 60,
+      isButtonDisabled: false
     };
   },
   methods: {
     navigateToLogin() {
       this.$router.push('/login');
     },
+    getVerificationCode() {
+      this.isButtonDisabled = true;
+      this.countdown = 60;
+      const countdownInterval = setInterval(() => {
+        if (this.countdown > 0) {
+          this.countdown--;
+        } else {
+          clearInterval(countdownInterval);
+          this.isButtonDisabled = false;
+        }
+      }, 1000);
+
+      fetch(`http://localhost:8080/getVerificationCode`, {
+        method: 'GET'
+      })
+      .then(response => response.json())
+      .then(data => {
+        console.log('Verification code:', data.code);
+      })
+      .catch(error => {
+        console.error('Error fetching verification code:', error);
+      });
+    },
     register() {
-      if (this.username && this.password) {
-        fetch(`http://localhost:8080/register?username=${this.username}&password=${this.password}`, {
-          method: 'POST'
+      if (this.username && this.password && this.verificationCode) {
+        fetch(`http://localhost:8080/register`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: this.username,
+            password: this.password,
+            verificationCode: this.verificationCode
+          })
         })
-        .then(response => {
-          console.log('状态码:', response.status); // 打印状态码
-          if (response.ok) {
-            alert('注册成功');
-            this.$router.push('/login');
-          } else {
-            alert('注册失败');
-          }
+        .then(response => response.json())
+        .then(data => {
+          console.log('Registration successful:', data);
         })
         .catch(error => {
-          console.error('Failed to register:', error);
-          alert('注册失败');
+          console.error('Error registering:', error);
         });
-      } else {
-        alert('请输入账号和密码');
       }
     }
   }
@@ -94,5 +126,18 @@ export default {
 
 .register-box button:hover {
   background-color: #0056b3;
+}
+
+.verification-code-container {
+  display: flex;
+  align-items: center;
+}
+.verification-code-container input {
+  flex: 4;
+}
+.verification-code-container button {
+  flex: 1;
+  margin-left: 10px;
+  padding: 5px 10px;
 }
 </style>

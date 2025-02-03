@@ -5,8 +5,8 @@
       <h2>登录</h2>
       <input type="text" v-model="username" placeholder="账号">
       <input type="password" v-model="password" placeholder="密码">
-      <button @click="navigateToRegister">注册</button>
       <button @click="login">登录</button>
+      <button @click="navigateToRegister">注册</button>
     </div>
   </div>
 </template>
@@ -25,14 +25,21 @@ export default {
     },
     login() {
       if (this.username && this.password) {
-        fetch(`http://localhost:8080/login?username=${this.username}&password=${this.password}`, {
-          method: 'POST'
+        fetch(`http://localhost:8080/login`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            username: this.username,
+            password: this.password
+          })
         })
         .then(response => {
           console.log('状态码:', response.status); // 打印状态码
           if (response.status == 200) {
             localStorage.setItem('username', this.username);
-            this.$router.push('/account');
+            this.$router.push('/home');
           } else if (response.status == 401) {
             alert('账号或密码错误');
           } else {

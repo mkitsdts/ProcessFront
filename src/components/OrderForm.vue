@@ -102,7 +102,7 @@ export default {
       if (this.step > 1) {
         this.step--;
       } else {
-        this.$router.push('/orders');
+        this.$router.push('/home');
       }
     },
     nextStep() {
