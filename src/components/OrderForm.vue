@@ -1,15 +1,17 @@
-<!-- filepath: /c:/Users/mkitsdts/OneDrive/mkitsdts/code/Program/Web/ExchangeProcess/front/src/components/OrderForm.vue -->
 <template>
   <div class="order-form-container">
     <div class="order-form-box">
-      <h2 v-if="step === 1">创建订单</h2>
-      <h2 v-else>填写订单详情</h2>
+      <h2>创建订单</h2>
       <form @submit.prevent="nextStep">
-        <div v-if="step === 1">
-          <div>
-            <label for="buyerId">买方ID</label>
-            <input type="text" id="buyerId" v-model="buyerId" required>
+        <div>
+          <label>选择角色</label>
+          <div class="role-selection">
+            <button type="button" :class="{ active: role === 'buyer' }" @click="role = 'buyer'">买家</button>
+            <button type="button" :class="{ active: role === 'seller' }" @click="role = 'seller'">卖家</button>
+            <button type="button" :class="{ active: role === 'middleman' }" @click="role = 'middleman'">中间人</button>
           </div>
+        </div>
+        <div v-if="role === 'buyer'">
           <div>
             <label for="sellerId">卖方ID</label>
             <input type="text" id="sellerId" v-model="sellerId" required>
@@ -19,62 +21,72 @@
             <input type="text" id="middlemanId" v-model="middlemanId">
           </div>
         </div>
-        <div v-else-if="step === 2">
+        <div v-if="role === 'seller'">
           <div>
-            <label for="productType">产品类型</label>
-            <select id="productType" v-model="productType" required>
-              <option value="oil">石油</option>
-              <option value="gas">天然气</option>
-            </select>
+            <label for="buyerId">买方ID</label>
+            <input type="text" id="buyerId" v-model="buyerId" required>
           </div>
           <div>
-            <label for="estimatedPrice">预估单价</label>
-            <div class="input-group">
-              <input type="number" id="estimatedPrice" v-model="estimatedPrice" required>
-              <select v-model="priceUnit">
-                <option value="USD">美元</option>
-                <option value="HKD">港币</option>
-                <option value="EUR">欧元</option>
-                <option value="CNY">人民币</option>
-                <option value="BTC">比特币</option>
-              </select>
-            </div>
-          </div>
-          <div>
-            <label for="quantity">数量</label>
-            <div class="input-group">
-              <input type="number" id="quantity" v-model="quantity" required>
-              <select v-if="productType === 'oil'" v-model="unit">
-                <option value="barrel">桶</option>
-                <option value="ton">吨</option>
-              </select>
-              <select v-else-if="productType === 'gas'" v-model="unit">
-                <option value="cubicMeter">千立方米</option>
-              </select>
-            </div>
+            <label for="middlemanId">中间人ID（选填）</label>
+            <input type="text" id="middlemanId" v-model="middlemanId">
           </div>
         </div>
-        <div v-else-if="step === 3">
+        <div v-if="role === 'middleman'">
           <div>
-            <label for="inspectionDays">验货天数</label>
-            <input type="number" id="inspectionDays" v-model="inspectionDays" required>
+            <label for="buyerId">买方ID</label>
+            <input type="text" id="buyerId" v-model="buyerId" required>
           </div>
           <div>
-            <label>比例</label>
-            <div class="input-group">
-              <label for="downPaymentRatio">首付比例</label>
-              <input type="number" id="downPaymentRatio" v-model.number="ratios[0]" step="0.01" min="0" max="1" required>
-            </div>
-            <div class="input-group">
-              <label for="finalPaymentRatio">尾款比例</label>
-              <input type="number" id="finalPaymentRatio" v-model.number="ratios[1]" step="0.01" min="0" max="1" required>
-            </div>
+            <label for="sellerId">卖方ID</label>
+            <input type="text" id="sellerId" v-model="sellerId" required>
           </div>
         </div>
-        <div class="buttons">
-          <button type="button" @click="goBack">返回</button>
-          <button type="submit">{{ step === 3 ? '提交' : '下一步' }}</button>
+        <div>
+          <label for="shippingLocation">发货地</label>
+          <select id="shippingLocation" v-model="shippingLocation" required>
+            <option v-for="country in countries" :key="country" :value="country">{{ country }}</option>
+          </select>
         </div>
+        <div>
+          <label for="receivingLocation">收货地</label>
+          <select id="receivingLocation" v-model="receivingLocation" required>
+            <option v-for="country in countries" :key="country" :value="country">{{ country }}</option>
+          </select>
+        </div>
+        <div>
+          <label for="itemType">物品种类</label>
+          <select id="itemType" v-model="itemType" required @change="updateQuantityUnits">
+            <option value="石油">石油</option>
+            <option value="天然气">天然气</option>
+          </select>
+        </div>
+        <div>
+          <label for="unitPrice">单价</label>
+          <input type="number" id="unitPrice" v-model="unitPrice" required min="0.00">
+          <select v-model="unitPriceCurrency" required>
+            <option value="美元">美元</option>
+            <option value="欧元">欧元</option>
+            <option value="人民币">人民币</option>
+            <option value="港币">港币</option>
+            <option value="比特币">比特币</option>
+          </select>
+        </div>
+        <div>
+          <label for="quantity">数量</label>
+          <input type="number" id="quantity" v-model="quantity" required min="0.00">
+          <select v-model="quantityUnit" required>
+            <option v-for="unit in quantityUnits" :key="unit" :value="unit">{{ unit }}</option>
+          </select>
+        </div>
+        <div>
+          <label for="downPaymentRatio">首付比例</label>
+          <input type="number" id="downPaymentRatio" v-model="downPaymentRatio" step="0.01" min="0" max="1" required @input="validatePaymentRatios">
+        </div>
+        <div>
+          <label for="finalPaymentRatio">尾款比例</label>
+          <input type="number" id="finalPaymentRatio" v-model="finalPaymentRatio" step="0.01" min="0" max="1" required @input="validatePaymentRatios">
+        </div>
+        <button type="submit" :disabled="!isPaymentRatioValid">下一步</button>
       </form>
     </div>
   </div>
@@ -84,97 +96,86 @@
 export default {
   data() {
     return {
-      step: 1,
+      role: 'buyer',
       buyerId: '',
       sellerId: '',
       middlemanId: '',
-      productType: 'oil',
-      estimatedPrice: '',
-      priceUnit: 'USD',
+      shippingLocation: '',
+      receivingLocation: '',
+      itemType: '',
+      unitPrice: '',
+      unitPriceCurrency: '美元',
       quantity: '',
-      unit: 'barrel',
-      inspectionDays: '',
-      ratios: [0.2, 0.8]
+      quantityUnit: '',
+      quantityUnits: [],
+      downPaymentRatio: 0.2,
+      finalPaymentRatio: 0.8,
+      isPaymentRatioValid: true,
+      countries: [
+        'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
+        'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi',
+        'Cabo Verde', 'Cambodia', 'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo, Democratic Republic of the', 'Congo, Republic of the', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic',
+        'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic',
+        'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia',
+        'Fiji', 'Finland', 'France',
+        'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
+        'Haiti', 'Honduras', 'Hungary',
+        'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy',
+        'Jamaica', 'Japan', 'Jordan',
+        'Kazakhstan', 'Kenya', 'Kiribati', 'Korea, North', 'Korea, South', 'Kosovo', 'Kuwait', 'Kyrgyzstan',
+        'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg',
+        'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar',
+        'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Macedonia', 'Norway',
+        'Oman',
+        'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal',
+        'Qatar',
+        'Romania', 'Russia', 'Rwanda',
+        'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria',
+        'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu',
+        'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan',
+        'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam',
+        'Yemen',
+        'Zambia', 'Zimbabwe'
+      ]
     };
   },
   methods: {
-    goBack() {
-      if (this.step > 1) {
-        this.step--;
-      } else {
-        this.$router.push('/home');
-      }
-    },
     nextStep() {
-      if (this.step === 3) {
-        if (this.validateRatios()) {
-          this.submitOrder();
-        } else {
-          alert('比例总和必须为1，且每项比例需大于0且小于或等于1');
-        }
-      } else {
-        this.step++;
+      // Handle the next step logic here
+      console.log('Next step');
+    },
+    updateQuantityUnits() {
+      if (this.itemType === '石油') {
+        this.quantityUnits = ['吨', '桶'];
+      } else if (this.itemType === '天然气') {
+        this.quantityUnits = ['千立方米', '百万英热'];
       }
     },
-    addRatio() {
-      this.ratios.push(0);
-    },
-    removeRatio(index) {
-      if (this.ratios.length > 2) {
-        this.ratios.splice(index, 1);
-      }
-    },
-    validateRatios() {
-      const total = this.ratios.reduce((sum, ratio) => sum + ratio, 0);
-      return total === 1 && this.ratios.every(ratio => ratio > 0 && ratio <= 1);
-    },
-    async submitOrder() {
-      const orderData = {
-        buyer: this.buyerId,
-        seller: this.sellerId,
-        truster: this.middlemanId,
-        product_category: this.productType,
-        estimated_price: this.estimatedPrice,
-        currency_type: this.priceUnit,
-        estimated_amount: this.quantity,
-        unit: this.unit,
-        inspection_period: this.inspectionDays,
-        down_payment_ratio: this.ratios[0],
-        final_payment_ratio: this.ratios[1]
-      };
-      try {
-        const response = await fetch('http://localhost:8080/create-order', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(orderData)
-        });
-        this.$router.push('/orders');
-        if (response.ok) {
-          alert('订单已提交');
-          this.$router.push('/orders');
-        } else {
-          alert('提交失败');
-        }
-      } catch (error) {
-        console.error('Failed to submit order:', error);
-        alert('提交成功');
-        this.$router.push('/orders');
-      }
+    validatePaymentRatios() {
+      this.isPaymentRatioValid = (parseFloat(this.downPaymentRatio) + parseFloat(this.finalPaymentRatio)) === 1;
     }
+  },
+  watch: {
+    itemType() {
+      this.updateQuantityUnits();
+    }
+  },
+  created() {
+    this.updateQuantityUnits();
   }
 };
 </script>
 
-<style scoped>
+<style>
 .order-form-container {
+  padding: 20px;
+  background-image: url('@/assets/login_bg.jpg');
+  background-size: cover;
+  background-position: center;
+  min-height: 100vh;
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background: url('src/assets/login_bg.jpg') no-repeat center center;
-  background-size: cover;
 }
 
 .order-form-box {
@@ -195,51 +196,49 @@ export default {
   flex-direction: column;
 }
 
-.order-form-box form div {
-  margin-bottom: 10px;
-}
-
-.order-form-box form label {
+.order-form-box label {
+  display: block;
   margin-bottom: 5px;
-  font-weight: bold;
 }
 
-.order-form-box form input,
-.order-form-box form select {
+.order-form-box input[type="text"],
+.order-form-box input[type="number"],
+.order-form-box select {
+  margin-bottom: 20px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
-  width: 100%;
 }
 
-.input-group {
+.order-form-box .role-selection {
   display: flex;
-  flex-direction: column;
-  gap: 10px;
+  justify-content: space-around;
+  margin-bottom: 20px;
 }
 
-.order-form-box .buttons {
-  display: flex;
-  justify-content: space-between;
-}
-
-.order-form-box .buttons button {
+.order-form-box .role-selection button {
   padding: 10px 20px;
+  background-color: #007bff;
+  color: white;
   border: none;
   border-radius: 5px;
   cursor: pointer;
 }
 
-.order-form-box .buttons button[type="button"] {
-  background-color: #ccc;
+.order-form-box .role-selection button.active {
+  background-color: #0056b3;
 }
 
-.order-form-box .buttons button[type="submit"] {
+.order-form-box button[type="submit"] {
+  padding: 10px;
   background-color: #007bff;
   color: white;
+  border: none;
+  border-radius: 5px;
+  cursor: pointer;
 }
 
-.order-form-box .buttons button[type="submit"]:hover {
+.order-form-box button[type="submit"]:hover {
   background-color: #0056b3;
 }
 </style>
