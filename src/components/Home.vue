@@ -1,7 +1,7 @@
 <template>
   <div class="home-container">
     <div class="header">
-      <h1 class="title">Escrow</h1>
+      <h1 class="title">ESCROW</h1>
       <div class="circle-buttons">
         <button class="circle-button" @click="goToWallet">💰</button>
         <button class="circle-button" @click="goToProfile">👤</button>
@@ -37,19 +37,19 @@
         </tr>
       </thead>
       <tbody>
-        <tr v-for="(order, index) in filteredOrders" :key="index">
+        <tr v-for="(order, index) in filteredOrders" :key="order.id">
           <td>{{ index + 1 }}</td>
-          <td>{{ order.contract_number }}</td>
+          <td>{{ order.id }}</td>
           <td>{{ order.creator }}</td>
-          <td>{{ order.product }}</td>
-          <td>{{ order.quantity }}</td>
+          <td>{{ order.product_category }}</td>
+          <td>{{ order.estimated_amount }}</td>
           <td>{{ order.unit }}</td>
           <td>{{ order.estimated_price }}</td>
-          <td>{{ order.currency }}</td>
-          <td>{{ order.total_estimated_price }}</td>
-          <td>{{ order.role }}</td>
+          <td>{{ order.currency_type }}</td>
+          <td>{{ order.estimated_amount * order.estimated_price }}</td>
+          <td>{{ 'buyer' }}</td>
           <td>{{ order.progress }}</td>
-          <td>{{ order.status }}</td>
+          <td>{{ getStatusText(order.status) }}</td>
         </tr>
       </tbody>
     </table>
@@ -66,14 +66,14 @@ export default {
   },
   methods: {
     fetchOrders() {
-      fetch('http://localhost:8080/home')
+      fetch('http://localhost:8080/home?id=test')
         .then(response => response.json())
         .then(data => {
           this.orders = data;
           this.filteredOrders = data;
         })
         .catch(error => {
-          console.error('Error fetching home:', error);
+          console.error('Error fetching orders:', error);
         });
     },
     filterOrders(filter) {
@@ -98,7 +98,7 @@ export default {
       }
     },
     startTransaction() {
-      this.$router.push('/create-order');
+      this.$router.push('/order/create');
     },
     goToWallet() {
       this.$router.push('/wallet');
@@ -107,10 +107,24 @@ export default {
       this.$router.push('/profile');
     },
     goToSettings() {
-      this.$router.push('/settings');
+      this.$router.push('/setting');
     },
     logout() {
       this.$router.push('/login');
+    },
+    getStatusText(status) {
+      switch (status) {
+        case 0:
+          return '可参与';
+        case 1:
+          return '进行中';
+        case 2:
+          return '需要买方采取行动';
+        case 3:
+          return '需要卖方采取行动';
+        default:
+          return '状态异常';
+      }
     }
   },
   created() {

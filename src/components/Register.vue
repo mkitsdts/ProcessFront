@@ -44,7 +44,7 @@ export default {
         }
       }, 1000);
 
-      fetch(`http://localhost:8080/getVerificationCode`, {
+      fetch(`http://127.000.000.001:8080/getVerificationCode`, {
         method: 'GET'
       })
       .then(response => response.json())
@@ -57,7 +57,7 @@ export default {
     },
     register() {
       if (this.username && this.password && this.verificationCode) {
-        fetch(`http://localhost:8080/register`, {
+        fetch(`http://127.000.000.001:8080/register`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

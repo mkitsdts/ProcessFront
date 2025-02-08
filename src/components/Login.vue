@@ -25,7 +25,7 @@ export default {
     },
     login() {
       if (this.username && this.password) {
-        fetch(`http://localhost:8080/login`, {
+        fetch(`http://127.000.000.001:8080/login`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json'

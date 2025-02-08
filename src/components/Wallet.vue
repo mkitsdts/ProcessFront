@@ -107,7 +107,7 @@ export default {
       try {
         const username = localStorage.getItem('username'); // 从路由参数中获取用户名
         console.log('username:', username);
-        const response = await fetch(`http://localhost:8080/balance?username=${username}`);
+        const response = await fetch(`http://127.000.000.001:8080/balance?username=${username}`);
         this.balance = await response.json();
       } catch (error) {
         console.error('Failed to fetch balance:', error);

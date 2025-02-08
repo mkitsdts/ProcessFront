@@ -1,7 +1,7 @@
 <template>
   <div class="order-form-container">
-    <div class="order-form-box">
-      <h2>创建订单</h2>
+    <h1 class="main-title">ESCROW</h1>
+    <h2 class="sub-title">创建订单</h2>
       <form @submit.prevent="nextStep">
         <div>
           <label>选择角色</label>
@@ -12,26 +12,31 @@
           </div>
         </div>
         <div v-if="role === 'buyer'">
+          <div class="input-grid">
           <div>
             <label for="sellerId">卖方ID</label>
             <input type="text" id="sellerId" v-model="sellerId" required>
           </div>
           <div>
-            <label for="middlemanId">中间人ID（选填）</label>
+        <label for="middlemanId">中间人ID</label>
             <input type="text" id="middlemanId" v-model="middlemanId">
           </div>
         </div>
+</div>
         <div v-if="role === 'seller'">
+          <div class="input-grid">
           <div>
             <label for="buyerId">买方ID</label>
             <input type="text" id="buyerId" v-model="buyerId" required>
           </div>
           <div>
-            <label for="middlemanId">中间人ID（选填）</label>
+            <label for="middlemanId">中间人ID</label>
             <input type="text" id="middlemanId" v-model="middlemanId">
           </div>
         </div>
+</div>
         <div v-if="role === 'middleman'">
+          <div class="input-grid">
           <div>
             <label for="buyerId">买方ID</label>
             <input type="text" id="buyerId" v-model="buyerId" required>
@@ -40,17 +45,18 @@
             <label for="sellerId">卖方ID</label>
             <input type="text" id="sellerId" v-model="sellerId" required>
           </div>
-        </div>
-        <div>
-          <label for="shippingLocation">发货地</label>
-          <select id="shippingLocation" v-model="shippingLocation" required>
-            <option v-for="country in countries" :key="country" :value="country">{{ country }}</option>
+  </div>
+<div>
+          <label for="tradeMethod">贸易方式</label>
+          <select id="tradeMethod" v-model="tradeMethod" required>
+            <option value="DES">DES</option>
           </select>
-        </div>
-        <div>
-          <label for="receivingLocation">收货地</label>
-          <select id="receivingLocation" v-model="receivingLocation" required>
-            <option v-for="country in countries" :key="country" :value="country">{{ country }}</option>
+      </div>
+</div>
+<div>
+          <label for="tradeMethod">贸易方式</label>
+          <select id="tradeMethod" v-model="tradeMethod" required>
+            <option value="DES">DES</option>
           </select>
         </div>
         <div>
@@ -60,9 +66,13 @@
             <option value="天然气">天然气</option>
           </select>
         </div>
+<div class="input-grid">
         <div>
           <label for="unitPrice">单价</label>
           <input type="number" id="unitPrice" v-model="unitPrice" required min="0.00">
+</div>
+        <div>
+          <label for="unitPriceCurrency">单位</label>
           <select v-model="unitPriceCurrency" required>
             <option value="美元">美元</option>
             <option value="欧元">欧元</option>
@@ -71,13 +81,20 @@
             <option value="比特币">比特币</option>
           </select>
         </div>
-        <div>
+</div>
+<div class="input-grid">
+     <div>
           <label for="quantity">数量</label>
           <input type="number" id="quantity" v-model="quantity" required min="0.00">
+</div>
+        <div>
+          <label for="quantityUnit">单位</label>
           <select v-model="quantityUnit" required>
             <option v-for="unit in quantityUnits" :key="unit" :value="unit">{{ unit }}</option>
           </select>
         </div>
+</div>
+      <div class="input-grid">
         <div>
           <label for="downPaymentRatio">首付比例</label>
           <input type="number" id="downPaymentRatio" v-model="downPaymentRatio" step="0.01" min="0" max="1" required @input="validatePaymentRatios">
@@ -86,10 +103,17 @@
           <label for="finalPaymentRatio">尾款比例</label>
           <input type="number" id="finalPaymentRatio" v-model="finalPaymentRatio" step="0.01" min="0" max="1" required @input="validatePaymentRatios">
         </div>
+</div>
+        <div>
+          <label for="shipmentDate">装船日期</label>
+          <input type="date" id="shipmentDate" v-model="shipmentDate" required>
+        </div>
+<div class="button-group">
         <button type="submit" :disabled="!isPaymentRatioValid">下一步</button>
+<button type="button" @click="goToHome">返回首页</button>
+      </div>
       </form>
-    </div>
-  </div>
+      </div>
 </template>
 
 <script>
@@ -100,8 +124,6 @@ export default {
       buyerId: '',
       sellerId: '',
       middlemanId: '',
-      shippingLocation: '',
-      receivingLocation: '',
       itemType: '',
       unitPrice: '',
       unitPriceCurrency: '美元',
@@ -111,32 +133,8 @@ export default {
       downPaymentRatio: 0.2,
       finalPaymentRatio: 0.8,
       isPaymentRatioValid: true,
-      countries: [
-        'Afghanistan', 'Albania', 'Algeria', 'Andorra', 'Angola', 'Antigua and Barbuda', 'Argentina', 'Armenia', 'Australia', 'Austria', 'Azerbaijan',
-        'Bahamas', 'Bahrain', 'Bangladesh', 'Barbados', 'Belarus', 'Belgium', 'Belize', 'Benin', 'Bhutan', 'Bolivia', 'Bosnia and Herzegovina', 'Botswana', 'Brazil', 'Brunei', 'Bulgaria', 'Burkina Faso', 'Burundi',
-        'Cabo Verde', 'Cambodia', 'Cameroon', 'Canada', 'Central African Republic', 'Chad', 'Chile', 'China', 'Colombia', 'Comoros', 'Congo, Democratic Republic of the', 'Congo, Republic of the', 'Costa Rica', 'Croatia', 'Cuba', 'Cyprus', 'Czech Republic',
-        'Denmark', 'Djibouti', 'Dominica', 'Dominican Republic',
-        'Ecuador', 'Egypt', 'El Salvador', 'Equatorial Guinea', 'Eritrea', 'Estonia', 'Eswatini', 'Ethiopia',
-        'Fiji', 'Finland', 'France',
-        'Gabon', 'Gambia', 'Georgia', 'Germany', 'Ghana', 'Greece', 'Grenada', 'Guatemala', 'Guinea', 'Guinea-Bissau', 'Guyana',
-        'Haiti', 'Honduras', 'Hungary',
-        'Iceland', 'India', 'Indonesia', 'Iran', 'Iraq', 'Ireland', 'Israel', 'Italy',
-        'Jamaica', 'Japan', 'Jordan',
-        'Kazakhstan', 'Kenya', 'Kiribati', 'Korea, North', 'Korea, South', 'Kosovo', 'Kuwait', 'Kyrgyzstan',
-        'Laos', 'Latvia', 'Lebanon', 'Lesotho', 'Liberia', 'Libya', 'Liechtenstein', 'Lithuania', 'Luxembourg',
-        'Madagascar', 'Malawi', 'Malaysia', 'Maldives', 'Mali', 'Malta', 'Marshall Islands', 'Mauritania', 'Mauritius', 'Mexico', 'Micronesia', 'Moldova', 'Monaco', 'Mongolia', 'Montenegro', 'Morocco', 'Mozambique', 'Myanmar',
-        'Namibia', 'Nauru', 'Nepal', 'Netherlands', 'New Zealand', 'Nicaragua', 'Niger', 'Nigeria', 'North Macedonia', 'Norway',
-        'Oman',
-        'Pakistan', 'Palau', 'Palestine', 'Panama', 'Papua New Guinea', 'Paraguay', 'Peru', 'Philippines', 'Poland', 'Portugal',
-        'Qatar',
-        'Romania', 'Russia', 'Rwanda',
-        'Saint Kitts and Nevis', 'Saint Lucia', 'Saint Vincent and the Grenadines', 'Samoa', 'San Marino', 'Sao Tome and Principe', 'Saudi Arabia', 'Senegal', 'Serbia', 'Seychelles', 'Sierra Leone', 'Singapore', 'Slovakia', 'Slovenia', 'Solomon Islands', 'Somalia', 'South Africa', 'South Sudan', 'Spain', 'Sri Lanka', 'Sudan', 'Suriname', 'Sweden', 'Switzerland', 'Syria',
-        'Taiwan', 'Tajikistan', 'Tanzania', 'Thailand', 'Timor-Leste', 'Togo', 'Tonga', 'Trinidad and Tobago', 'Tunisia', 'Turkey', 'Turkmenistan', 'Tuvalu',
-        'Uganda', 'Ukraine', 'United Arab Emirates', 'United Kingdom', 'United States', 'Uruguay', 'Uzbekistan',
-        'Vanuatu', 'Vatican City', 'Venezuela', 'Vietnam',
-        'Yemen',
-        'Zambia', 'Zimbabwe'
-      ]
+      tradeMethod: 'DES',
+      shipmentDate: ''
     };
   },
   methods: {
@@ -153,6 +151,9 @@ export default {
     },
     validatePaymentRatios() {
       this.isPaymentRatioValid = (parseFloat(this.downPaymentRatio) + parseFloat(this.finalPaymentRatio)) === 1;
+},
+    goToHome() {
+      this.$router.push('/');
     }
   },
   watch: {
@@ -174,49 +175,56 @@ export default {
   background-position: center;
   min-height: 100vh;
   display: flex;
-  justify-content: center;
-  align-items: center;
+  flex-direction: column;
+  align-items: flex-start;
 }
 
-.order-form-box {
-  background: rgba(255, 255, 255, 0.8);
-  padding: 40px;
-  border-radius: 10px;
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-  text-align: center;
-  width: 300px;
+.main-title {
+  font-size: 32px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-.order-form-box h2 {
+.sub-title {
+  font-size: 24px;
   margin-bottom: 20px;
 }
 
-.order-form-box form {
+.order-form-container form {
   display: flex;
   flex-direction: column;
+  width: 38.2%;
 }
 
-.order-form-box label {
-  display: block;
+.order-form-container label {
+display: block;
   margin-bottom: 5px;
 }
 
-.order-form-box input[type="text"],
-.order-form-box input[type="number"],
-.order-form-box select {
+.order-form-container input[type="text"],
+.order-form-container input[type="number"],
+.order-form-container input[type="date"],
+.order-form-container select {
   margin-bottom: 20px;
   padding: 10px;
   border: 1px solid #ccc;
   border-radius: 5px;
+  width: 80%;
 }
 
-.order-form-box .role-selection {
+.order-form-container .input-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.order-form-container .role-selection {
   display: flex;
   justify-content: space-around;
   margin-bottom: 20px;
 }
 
-.order-form-box .role-selection button {
+.order-form-container .role-selection button {
   padding: 10px 20px;
   background-color: #007bff;
   color: white;
@@ -225,11 +233,18 @@ export default {
   cursor: pointer;
 }
 
-.order-form-box .role-selection button.active {
+.order-form-container .role-selection button.active {
   background-color: #0056b3;
 }
 
-.order-form-box button[type="submit"] {
+.order-form-container .button-group {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.order-form-container button[type="submit"],
+.order-form-container button[type="button"] {
   padding: 10px;
   background-color: #007bff;
   color: white;
@@ -238,7 +253,19 @@ export default {
   cursor: pointer;
 }
 
-.order-form-box button[type="submit"]:hover {
+.order-form-container button[type="submit"]:hover,
+.order-form-container button[type="button"]:hover {
   background-color: #0056b3;
+}
+
+.input-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.input-grid input {
+  padding: 8px;
+  font-size: 16px;
 }
 </style>
