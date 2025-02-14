@@ -2,78 +2,72 @@
   <div class="order-form-container">
     <h1 class="main-title">ESCROW</h1>
     <h2 class="sub-title">创建订单</h2>
-      <form @submit.prevent="nextStep">
-        <div>
-          <label>选择角色</label>
-          <div class="role-selection">
-            <button type="button" :class="{ active: role === 'buyer' }" @click="role = 'buyer'">买家</button>
-            <button type="button" :class="{ active: role === 'seller' }" @click="role = 'seller'">卖家</button>
-            <button type="button" :class="{ active: role === 'middleman' }" @click="role = 'middleman'">中间人</button>
-          </div>
+    <form @submit.prevent="nextStep">
+      <div>
+        <label>选择角色</label>
+        <div class="role-selection">
+          <button type="button" :class="{ active: role === 'buyer' }" @click="role = 'buyer'">买家</button>
+          <button type="button" :class="{ active: role === 'seller' }" @click="role = 'seller'">卖家</button>
+          <button type="button" :class="{ active: role === 'truster' }" @click="role = 'truster'">中间人</button>
         </div>
-        <div v-if="role === 'buyer'">
-          <div class="input-grid">
-          <div>
-            <label for="sellerId">卖方ID</label>
-            <input type="text" id="sellerId" v-model="sellerId" required>
-          </div>
-          <div>
-        <label for="middlemanId">中间人ID</label>
-            <input type="text" id="middlemanId" v-model="middlemanId">
-          </div>
-        </div>
-</div>
-        <div v-if="role === 'seller'">
-          <div class="input-grid">
-          <div>
-            <label for="buyerId">买方ID</label>
-            <input type="text" id="buyerId" v-model="buyerId" required>
-          </div>
-          <div>
-            <label for="middlemanId">中间人ID</label>
-            <input type="text" id="middlemanId" v-model="middlemanId">
-          </div>
-        </div>
-</div>
-        <div v-if="role === 'middleman'">
-          <div class="input-grid">
-          <div>
-            <label for="buyerId">买方ID</label>
-            <input type="text" id="buyerId" v-model="buyerId" required>
-          </div>
-          <div>
-            <label for="sellerId">卖方ID</label>
-            <input type="text" id="sellerId" v-model="sellerId" required>
-          </div>
-  </div>
-<div>
-          <label for="tradeMethod">贸易方式</label>
-          <select id="tradeMethod" v-model="tradeMethod" required>
-            <option value="DES">DES</option>
-          </select>
       </div>
-</div>
-<div>
-          <label for="tradeMethod">贸易方式</label>
-          <select id="tradeMethod" v-model="tradeMethod" required>
-            <option value="DES">DES</option>
-          </select>
+      <div v-if="role === 'buyer'">
+        <div class="input-grid">
+          <div>
+            <label for="seller">卖方ID</label>
+            <input type="text" id="seller" v-model="seller" required>
+          </div>
+          <div>
+            <label for="truster">中间人ID</label>
+            <input type="text" id="truster" v-model="truster">
+          </div>
+        </div>
+      </div>
+      <div v-if="role === 'seller'">
+        <div class="input-grid">
+          <div>
+            <label for="buyer">买方ID</label>
+            <input type="text" id="buyer" v-model="buyer" required>
+          </div>
+          <div>
+            <label for="truster">中间人ID</label>
+            <input type="text" id="truster" v-model="truster">
+          </div>
+        </div>
+      </div>
+      <div v-if="role === 'truster'">
+        <div class="input-grid">
+          <div>
+            <label for="buyerId">买方ID</label>
+            <input type="text" id="buyerId" v-model="buyer" required>
+          </div>
+          <div>
+            <label for="sellerId">卖方ID</label>
+            <input type="text" id="sellerId" v-model="seller" required>
+          </div>
+        </div>
+      </div>
+      <div>
+        <label for="category">贸易方式</label>
+        <select id="category" v-model="category" required>
+          <option value="DES">DES</option>
+        </select>
+      </div>
+      <div>
+        <label for="product_category">物品种类</label>
+        <select id="product_category" v-model="product_category" required @change="updateQuantityUnits">
+          <option value="石油">石油</option>
+          <option value="天然气">天然气</option>
+        </select>
+      </div>
+      <div class="input-grid">
+        <div>
+          <label for="estimated_price">单价</label>
+          <input type="number" id="estimated_price" v-model="estimated_price" required min="0.00">
         </div>
         <div>
-          <label for="itemType">物品种类</label>
-          <select id="itemType" v-model="itemType" required @change="updateQuantityUnits">
-            <option value="石油">石油</option>
-            <option value="天然气">天然气</option>
-          </select>
-        </div>
-<div class="input-grid">
-        <div>
-          <label for="unitPrice">单价</label>
-          <input type="number" id="unitPrice" v-model="unitPrice" required min="0.00">
-</div>
-        <div>
-          <label for="unitPriceCurrency">单位</label>
-          <select v-model="unitPriceCurrency" required>
+          <label for="currency_type">单位</label>
+          <select v-model="currency_type" required>
             <option value="美元">美元</option>
             <option value="欧元">欧元</option>
             <option value="人民币">人民币</option>
@@ -81,39 +75,43 @@
             <option value="比特币">比特币</option>
           </select>
         </div>
-</div>
-<div class="input-grid">
-     <div>
-          <label for="quantity">数量</label>
-          <input type="number" id="quantity" v-model="quantity" required min="0.00">
-</div>
+      </div>
+      <div class="input-grid">
         <div>
-          <label for="quantityUnit">单位</label>
-          <select v-model="quantityUnit" required>
+          <label for="estimated_amount">数量</label>
+          <input type="number" id="estimated_amount" v-model="estimated_amount" required min="0.00">
+        </div>
+        <div>
+          <label for="product_unit">单位</label>
+          <select v-model="product_unit" required>
             <option v-for="unit in quantityUnits" :key="unit" :value="unit">{{ unit }}</option>
           </select>
         </div>
-</div>
+      </div>
       <div class="input-grid">
         <div>
-          <label for="downPaymentRatio">首付比例</label>
-          <input type="number" id="downPaymentRatio" v-model="downPaymentRatio" step="0.01" min="0" max="1" required @input="validatePaymentRatios">
+          <label for="down_payment_ratio">首付比例</label>
+          <input type="number" id="down_payment_ratio" v-model="down_payment_ratio" step="0.01" min="0" max="1" required @input="validatePaymentRatios">
         </div>
         <div>
-          <label for="finalPaymentRatio">尾款比例</label>
-          <input type="number" id="finalPaymentRatio" v-model="finalPaymentRatio" step="0.01" min="0" max="1" required @input="validatePaymentRatios">
+          <label for="final_payment_ratio">尾款比例</label>
+          <input type="number" id="final_payment_ratio" v-model="final_payment_ratio" step="0.01" min="0" max="1" required @input="validatePaymentRatios">
         </div>
-</div>
-        <div>
-          <label for="shipmentDate">装船日期</label>
-          <input type="date" id="shipmentDate" v-model="shipmentDate" required>
-        </div>
-<div class="button-group">
-        <button type="submit" :disabled="!isPaymentRatioValid">下一步</button>
-<button type="button" @click="goToHome">返回首页</button>
       </div>
-      </form>
+      <div>
+        <label for="truster_commission_ratio">佣金比例</label>
+        <input type="number" id="truster_commission_ratio" v-model="truster_commission_ratio" step="0.01" min="0" max="1">
       </div>
+      <div>
+        <label for="delivery_date">装船日期</label>
+        <input type="date" id="delivery_date" v-model="delivery_date" required>
+      </div>
+      <div class="button-group">
+        <button type="submit" :disabled="!isPaymentRatioValid">提交</button>
+        <button type="button" @click="goToHome">返回首页</button>
+      </div>
+    </form>
+  </div>
 </template>
 
 <script>
@@ -121,43 +119,101 @@ export default {
   data() {
     return {
       role: 'buyer',
-      buyerId: '',
-      sellerId: '',
-      middlemanId: '',
-      itemType: '',
-      unitPrice: '',
-      unitPriceCurrency: '美元',
-      quantity: '',
-      quantityUnit: '',
+      buyer: '',
+      seller: '',
+      truster: '',
+      product_category: '',
+      estimated_price: '',
+      currency_type: '美元',
+      estimated_amount: '',
+      product_unit: '',
       quantityUnits: [],
-      downPaymentRatio: 0.2,
-      finalPaymentRatio: 0.8,
+      down_payment_ratio: 0.2,
+      final_payment_ratio: 0.8,
       isPaymentRatioValid: true,
-      tradeMethod: 'DES',
-      shipmentDate: ''
+      category: 'DES',
+      delivery_date: '',
+      truster_commission_ratio: ''
     };
   },
   methods: {
     nextStep() {
       // Handle the next step logic here
-      console.log('Next step');
+      alert('提交成功');
+      var content;
+      if (this.role === 'buyer') {
+        content = JSON.stringify({
+          buyer: this.buyer,
+          seller: this.seller,
+          truster: this.truster,
+          product_category: this.product_category,
+          estimated_price: this.estimated_price,
+          currency_type: this.currency_type,
+          estimated_amount: this.estimated_amount,
+          product_unit: this.product_unit,
+          down_payment_ratio: this.down_payment_ratio,
+          final_payment_ratio: this.final_payment_ratio,
+          category: this.category,
+          delivery_date: this.delivery_date,
+          truster_commission_ratio: this.truster_commission_ratio
+        });
+      } else if (this.role === 'seller') {
+        content = JSON.stringify({
+          buyer: this.buyer,
+          seller: this.seller,
+          truster: this.truster,
+          product_category: this.product_category,
+          estimated_price: this.estimated_price,
+          currency_type: this.currency_type,
+          estimated_amount: this.estimated_amount,
+          product_unit: this.product_unit,
+          down_payment_ratio: this.down_payment_ratio,
+          final_payment_ratio: this.final_payment_ratio,
+          category: this.category,
+          delivery_date: this.delivery_date,
+          truster_commission_ratio: this.truster_commission_ratio
+        });
+      } else if (this.role === 'truster') {
+        content = JSON.stringify({
+          buyer: this.buyer,
+          seller: this.seller,
+          truster: this.truster,
+          product_category: this.product_category,
+          estimated_price: this.estimated_price,
+          currency_type: this.currency_type,
+          estimated_amount: this.estimated_amount,
+          product_unit: this.product_unit,
+          down_payment_ratio: this.down_payment_ratio,
+          final_payment_ratio: this.final_payment_ratio,
+          category: this.category,
+          delivery_date: this.delivery_date,
+          truster_commission_ratio: this.truster_commission_ratio
+        });
+      }
+      fetch('http://localhost:8080/order/create', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: content
+      });
     },
     updateQuantityUnits() {
-      if (this.itemType === '石油') {
+      if (this.product_category === '石油') {
         this.quantityUnits = ['吨', '桶'];
-      } else if (this.itemType === '天然气') {
+      } else if (this.product_category === '天然气') {
         this.quantityUnits = ['千立方米', '百万英热'];
       }
     },
     validatePaymentRatios() {
-      this.isPaymentRatioValid = (parseFloat(this.downPaymentRatio) + parseFloat(this.finalPaymentRatio)) === 1;
-},
+      this.isPaymentRatioValid = (parseFloat(this.down_payment_ratio) + parseFloat(this.final_payment_ratio)) === 1;
+    },
     goToHome() {
       this.$router.push('/');
     }
   },
   watch: {
-    itemType() {
+    product_category() {
       this.updateQuantityUnits();
     }
   },
@@ -197,7 +253,7 @@ export default {
 }
 
 .order-form-container label {
-display: block;
+  display: block;
   margin-bottom: 5px;
 }
 

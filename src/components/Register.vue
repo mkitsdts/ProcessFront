@@ -3,8 +3,9 @@
   <div class="register-container">
     <div class="register-box">
       <h2>注册</h2>
-      <input type="text" v-model="username" placeholder="账号">
+      <input type="text" v-model="username" placeholder="用户名">
       <input type="password" v-model="password" placeholder="密码">
+      <input type="email" v-model="email" placeholder="邮箱">
       <div class="verification-code-container">
         <input v-model="verificationCode" placeholder="验证码" />
         <button @click="getVerificationCode" :disabled="isButtonDisabled">
@@ -25,7 +26,8 @@ export default {
       password: '',
       verificationCode: '',
       countdown: 60,
-      isButtonDisabled: false
+      isButtonDisabled: false,
+      email: ''
     };
   },
   methods: {
@@ -44,7 +46,7 @@ export default {
         }
       }, 1000);
 
-      fetch(`http://127.000.000.001:8080/getVerificationCode`, {
+      fetch(`http://127.000.000.001:8080/register/code?email=`+ this.email, {
         method: 'GET'
       })
       .then(response => response.json())
@@ -65,7 +67,8 @@ export default {
           body: JSON.stringify({
             username: this.username,
             password: this.password,
-            verificationCode: this.verificationCode
+            email_address: this.email,
+            code: this.verificationCode
           })
         })
         .then(response => response.json())
